@@ -141,6 +141,76 @@ writePort(port, value, bitmask):  Write an 8 bit port.
 #define PIN_TO_SERVO(p)         (p) 
 #endif
 
+/*==============================================================================
+ * readPort() - Read an 8 bit port
+ *============================================================================*/
+
+static inline unsigned char readPort(byte, byte) __attribute__((always_inline, unused));
+static inline unsigned char readPort(byte port, byte bitmask)
+{
+#if defined(ARDUINO_PINOUT_OPTIMIZE)
+  if (port == 0) return (PIND & 0xFC) & bitmask; // ignore Rx/Tx 0/1
+  if (port == 1) return ((PINB & 0x3F) | ((PINC & 0x03) << 6)) & bitmask;
+  if (port == 2) return ((PINC & 0x3C) >> 2) & bitmask;
+  return 0;
+#else
+  unsigned char out=0, pin=port*8;
+  if (IS_PIN_DIGITAL(pin+0) && (bitmask & 0x01) && digitalRead(PIN_TO_DIGITAL(pin+0))) out |= 0x01;
+  if (IS_PIN_DIGITAL(pin+1) && (bitmask & 0x02) && digitalRead(PIN_TO_DIGITAL(pin+1))) out |= 0x02;
+  if (IS_PIN_DIGITAL(pin+2) && (bitmask & 0x04) && digitalRead(PIN_TO_DIGITAL(pin+2))) out |= 0x04;
+  if (IS_PIN_DIGITAL(pin+3) && (bitmask & 0x08) && digitalRead(PIN_TO_DIGITAL(pin+3))) out |= 0x08;
+  if (IS_PIN_DIGITAL(pin+4) && (bitmask & 0x10) && digitalRead(PIN_TO_DIGITAL(pin+4))) out |= 0x10;
+  if (IS_PIN_DIGITAL(pin+5) && (bitmask & 0x20) && digitalRead(PIN_TO_DIGITAL(pin+5))) out |= 0x20;
+  if (IS_PIN_DIGITAL(pin+6) && (bitmask & 0x40) && digitalRead(PIN_TO_DIGITAL(pin+6))) out |= 0x40;
+  if (IS_PIN_DIGITAL(pin+7) && (bitmask & 0x80) && digitalRead(PIN_TO_DIGITAL(pin+7))) out |= 0x80;
+  return out;
+#endif
+}
+
+/*==============================================================================
+ * writePort() - Write an 8 bit port, only touch pins specified by a bitmask
+ *============================================================================*/
+
+static inline unsigned char writePort(byte, byte, byte) __attribute__((always_inline, unused));
+static inline unsigned char writePort(byte port, byte value, byte bitmask)
+{
+#if defined(ARDUINO_PINOUT_OPTIMIZE)
+  if (port == 0) {
+    bitmask = bitmask & 0xFC;  // do not touch Tx & Rx pins
+    byte valD = value & bitmask;
+    byte maskD = ~bitmask;
+    cli();
+    PORTD = (PORTD & maskD) | valD;
+    sei();
+  } else if (port == 1) {
+    byte valB = (value & bitmask) & 0x3F;
+    byte valC = (value & bitmask) >> 6;
+    byte maskB = ~(bitmask & 0x3F);
+    byte maskC = ~((bitmask & 0xC0) >> 6);
+    cli();
+    PORTB = (PORTB & maskB) | valB;
+    PORTC = (PORTC & maskC) | valC;
+    sei();
+  } else if (port == 2) {
+    bitmask = bitmask & 0x0F;
+    byte valC = (value & bitmask) << 2;
+    byte maskC = ~(bitmask << 2);
+    cli();
+    PORTC = (PORTC & maskC) | valC;
+    sei();
+  }
+#else
+  byte pin=port*8;
+  if ((bitmask & 0x01)) digitalWrite(PIN_TO_DIGITAL(pin+0), (value & 0x01));
+  if ((bitmask & 0x02)) digitalWrite(PIN_TO_DIGITAL(pin+1), (value & 0x02));
+  if ((bitmask & 0x04)) digitalWrite(PIN_TO_DIGITAL(pin+2), (value & 0x04));
+  if ((bitmask & 0x08)) digitalWrite(PIN_TO_DIGITAL(pin+3), (value & 0x08));
+  if ((bitmask & 0x10)) digitalWrite(PIN_TO_DIGITAL(pin+4), (value & 0x10));
+  if ((bitmask & 0x20)) digitalWrite(PIN_TO_DIGITAL(pin+5), (value & 0x20));
+  if ((bitmask & 0x40)) digitalWrite(PIN_TO_DIGITAL(pin+6), (value & 0x40));
+  if ((bitmask & 0x80)) digitalWrite(PIN_TO_DIGITAL(pin+7), (value & 0x80));
+#endif
+}
 
 #ifndef TOTAL_PORTS
 #define TOTAL_PORTS             ((TOTAL_PINS + 7) / 8)
