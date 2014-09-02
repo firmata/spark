@@ -29,8 +29,7 @@
  * TODO: use Program Control to load stored profiles from EEPROM
  */
 
-#include <Servo.h>
-#include <Wire.h>
+#include "application.h"
 #include <Firmata.h>
 
 // move the following defines to Firmata.h?
