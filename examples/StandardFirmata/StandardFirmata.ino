@@ -29,17 +29,29 @@
  * TODO: use Program Control to load stored profiles from EEPROM
  */
 
-#include <Servo.h>
-#include <Wire.h>
+#include "application.h"
 #include <Firmata.h>
 
+void readAndReportData(byte address, int theRegister, byte numBytes);
+void outputPort(byte portNumber, byte portValue, byte forceSend);
+void checkDigitalInputs(void);
+void setPinModeCallback(byte pin, int mode);
+void analogWriteCallback(byte pin, int value);
+void digitalWriteCallback(byte port, int value);
+void reportAnalogCallback(byte analogPin, int value);
+void reportDigitalCallback(byte port, int value);
+void sysexCallback(byte command, byte argc, byte *argv);
+void enableI2CPins();
+void disableI2CPins();
+void systemResetCallback();
+
 // move the following defines to Firmata.h?
-#define I2C_WRITE B00000000
-#define I2C_READ B00001000
-#define I2C_READ_CONTINUOUSLY B00010000
-#define I2C_STOP_READING B00011000
-#define I2C_READ_WRITE_MODE_MASK B00011000
-#define I2C_10BIT_ADDRESS_MODE_MASK B00100000
+#define I2C_WRITE 0x00
+#define I2C_READ 0x08
+#define I2C_READ_CONTINUOUSLY 0x10
+#define I2C_STOP_READING 0x18
+#define I2C_READ_WRITE_MODE_MASK 0x18
+#define I2C_10BIT_ADDRESS_MODE_MASK 0x20
 
 #define MAX_QUERIES 8
 #define MINIMUM_SAMPLING_INTERVAL 10
@@ -93,11 +105,7 @@ void readAndReportData(byte address, int theRegister, byte numBytes) {
   // do not always require the register read so upon interrupt you call Wire.requestFrom()  
   if (theRegister != REGISTER_NOT_SPECIFIED) {
     Wire.beginTransmission(address);
-    #if ARDUINO >= 100
     Wire.write((byte)theRegister);
-    #else
-    Wire.send((byte)theRegister);
-    #endif
     Wire.endTransmission();
     // do not set a value of 0
     if (i2cReadDelayTime > 0) {
@@ -121,11 +129,7 @@ void readAndReportData(byte address, int theRegister, byte numBytes) {
   i2cRxData[1] = theRegister;
 
   for (int i = 0; i < numBytes && Wire.available(); i++) {
-    #if ARDUINO >= 100
     i2cRxData[2 + i] = Wire.read();
-    #else
-    i2cRxData[2 + i] = Wire.receive();
-    #endif
   }
 
   // send slave address, register and received bytes
@@ -347,11 +351,7 @@ void sysexCallback(byte command, byte argc, byte *argv)
       Wire.beginTransmission(slaveAddress);
       for (byte i = 2; i < argc; i += 2) {
         data = argv[i] + (argv[i + 1] << 7);
-        #if ARDUINO >= 100
         Wire.write(data);
-        #else
-        Wire.send(data);
-        #endif
       }
       Wire.endTransmission();
       delayMicroseconds(70);
