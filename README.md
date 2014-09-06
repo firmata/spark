@@ -30,3 +30,6 @@ Firmata for [Spark](https://www.spark.io/)
 ##TODO
 * spark.json support so we're in the Spark Web IDE libraries listing! https://github.com/spark/uber-library-example/issues
 * Service agnostic examples that tunnel through mqtt, websockets etc like Octoblu https://github.com/jacobrosenthal/core-firmware/tree/skynet-mqtt-firmata/src
+
+##Gotchas
+* Requires Spark 0.3.3 As of this writing, you need to update your core from ARM toolchain, but the fix should be out in a release shortly. https://github.com/spark/core-firmware/compare/feature/release3.3 There are 2 bugs fixed. First, there was a bug in Spark prior to that which swapped input and output enums meaning you have to set input when you mean output, and reverse https://github.com/spark/core-firmware/issues/282 There was another bug which didnt set pins high for values other than 1 (ie setting digitalWrite(pin,2) works in arduino, but previously didnt in spark. Firmata uses this 'feature')  https://github.com/spark/core-firmware/issues/247
