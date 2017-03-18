@@ -1,23 +1,29 @@
-spark
-=====
+Firmata for Particle
+====================
 
-Firmata for [Spark](https://www.spark.io/)
+Firmata for [Particle](https://www.particle.io/)
 
 ##Install (Web IDE)
-* Go to Spark Web IDE https://spark.io/build
-* Create a new sketch and copy in examples/StandardFirmata/StandardFirmata.ino
-* Click the plus button in the upper right corner to add the Firmata.h, Firmata.cpp, and Boards.h
-* Click the Flash lightning bolt in the upper left corner.
+1. Go to [Particle Build Web IDE](https://build.particle.io/build).
+2. Open the Libraries sidebar and search for "Firmata".
+3. Add a reference to the library itself or use the StandardFirmata.ino example.
+4. Click the Flash lightning bolt in the upper left corner.
 
-##Install (Spark CLI tools)
-* Download core-firmware.bin from this repo's release folder
-* Log in to https://www.spark.io/build
-* Click cores in the bottom left corner
-* In the white box that slides out, find the name of your spark and click the down arrow to reveal the core id
-* Make sure your core is connected and updated and breathing Cyan. See http://docs.spark.io/ for more info
-* Install the spark command line tools npm install -g spark-cli
-* Login with spark cloud login
-* Flash the firmware spark cloud flash YOURCOREIDHERE core-firmware.bin
+##Install (Local Dev IDE)
+1. Open the [Particle Dev IDE](https://www.particle.io/products/development-tools/particle-desktop-ide).
+2. Open the libraries window by clicking on the libraries icon in the left sidebar.
+3. Search for "Firmata".
+4. Add a reference to the library by clicking "Use" and then "Copy to current project".
+5. To install StandardFirmata find **StandardFirmata.ino** under lib/Firmata/examples/StandardFirmata and right-click on it and select **Flash Example OTA**.
+
+##Install (Particle CLI tools)
+1. Install the command line tools with `npm install -g particle-cli`.
+2. Log in to your Particle account with `particle login`.
+3. Create a new project using `particle project create` and follow the prompts.
+
+To use Firmata in your project use `particle library add Firmata`. This will create a reference to the library but not copy the contents locally.
+
+To get StandardFirmata on your device copy it to your project folder by running `particle library copy Firmata` followed by `particle flash [device name] lib/Firmata/examples/StandardFirmata`
 
 ##Install (Arm Toolchain - HARD)
 * Follow the directions at the Spark github page to get your toolchain set up. https://github.com/spark/core-firmware
@@ -28,8 +34,4 @@ Firmata for [Spark](https://www.spark.io/)
 * Build just like you learned in the Spark tutorial
 
 ##TODO
-* spark.json support so we're in the Spark Web IDE libraries listing! https://github.com/spark/uber-library-example/issues
 * Service agnostic examples that tunnel through mqtt, websockets etc like Octoblu https://github.com/jacobrosenthal/core-firmware/tree/skynet-mqtt-firmata/src
-
-##Gotchas
-* Requires Spark 0.3.3 As of this writing, you need to update your core from ARM toolchain, but the fix should be out in a release shortly. https://github.com/spark/core-firmware/compare/feature/release3.3 There are 2 bugs fixed. First, there was a bug in Spark prior to that which swapped input and output enums meaning you have to set input when you mean output, and reverse https://github.com/spark/core-firmware/issues/282 There was another bug which didnt set pins high for values other than 1 (ie setting digitalWrite(pin,2) works in arduino, but previously didnt in spark. Firmata uses this 'feature')  https://github.com/spark/core-firmware/issues/247
