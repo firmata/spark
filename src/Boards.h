@@ -122,10 +122,11 @@ writePort(port, value, bitmask):  Write an 8 bit port.
 
 // #define TOTAL_PINS              21 //defined in spark_wiring.h
 // #define TOTAL_ANALOG_PINS       8 //defined in spark_wiring.h
-#define VERSION_BLINK_PIN       7
+#define VERSION_BLINK_PIN       LED_BUILTIN
 #define IS_PIN_DIGITAL(p)       ((p) >= 0 && (p) < TOTAL_PINS && (p) != 8 && (p) != 9  && (p) != 20 && (p) != 21 && (p) != 22 && (p) != 23)
 #define IS_PIN_ANALOG(p)        ((p) >= FIRST_ANALOG_PIN && (p) < (FIRST_ANALOG_PIN+TOTAL_ANALOG_PINS))
-#define IS_PIN_PWM(p)           ((p) == 0 || (p) == 1 || (p) == 10 || (p) == 11 || (p) == 14 || (p) == 15 || (p) == 16 || (p) == 17)
+//#define IS_PIN_PWM(p)           ((p) == 0 || (p) == 1 || (p) == 10 || (p) == 11 || (p) == 14 || (p) == 15 || (p) == 16 || (p) == 17)
+#define IS_PIN_PWM(p)           digitalPinHasPWM(p)
 #define IS_PIN_SERVO(p)         ((p) >= 0 && (p) < MAX_SERVOS) //??
 #define IS_PIN_I2C(p)           ((p) == SDA || (p) == SCL)
 #define IS_PIN_SPI(p)           ((p) == SS || (p) == MOSI || (p) == MISO || (p) == SCK)

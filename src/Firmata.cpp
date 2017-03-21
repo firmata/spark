@@ -1,7 +1,7 @@
 /*
-  Firmata.cpp - Firmata library v2.5.5 - 2017-03-06
+  Firmata.cpp - Firmata library v2.5.6 - 2017-03-18
   Copyright (c) 2006-2008 Hans-Christoph Steiner.  All rights reserved.
-  Copyright (C) 2009-2016 Jeff Hoefs.  All rights reserved.
+  Copyright (C) 2009-2017 Jeff Hoefs.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -16,7 +16,6 @@
 //******************************************************************************
 
 #include "Firmata.h"
-#include "Particle.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -50,7 +49,7 @@ systemCallbackFunction FirmataClass::currentSystemResetCallback = (systemCallbac
  */
 void FirmataClass::sendValueAsTwo7bitBytes(int value)
 {
-  marshaller.transformByteStreamToMessageBytes(sizeof(value), reinterpret_cast<uint8_t *>(&value), sizeof(value));
+  marshaller.encodeByteStream(sizeof(value), reinterpret_cast<uint8_t *>(&value), sizeof(value));
 }
 
 /**
